@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "umwelt"
+version = "0.1.0"
+description = ""
+authors = ["Thibaut Le Page <thilp@thilp.net>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+pydantic = ">=0.17,<1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.0"
+ipython = "^7.7"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
