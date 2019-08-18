@@ -17,7 +17,6 @@ import umwelt
         (set, '[1, "b"]', {1, "b"}),
         (Set[str], '["a","b"]', {"a", "b"}),
         (Set[int], "[1, 2]", {1, 2}),
-        (frozenset, '[1, "b"]', frozenset([1, "b"])),
         (tuple, '[1, "b"]', (1, "b")),
         (Tuple[int, str], '[1, "b"]', (1, "b")),
         (Tuple[str, ...], '["ab","cd"]', ("ab", "cd")),
@@ -65,6 +64,7 @@ def test_attr_value(t, example, expected):
 @pytest.mark.parametrize(
     "t, example, expected",
     [
+        (frozenset, '[1, "b"]', frozenset([1, "b"])),
         (
             Set[frozenset],
             '[[1,"a"],[2,"b"]]',
