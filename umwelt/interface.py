@@ -1,4 +1,5 @@
 import dataclasses
+from dataclasses import is_dataclass
 import json
 import os
 from typing import TypeVar, Type, Mapping, Union, Callable
@@ -41,22 +42,34 @@ def new(
     prefix: Union[str, Prefixer] = "",
     decoder: Decoder = _jsonlike_decoder,
 ) -> T:
-    if not dataclasses.is_dataclass(cls):
+    if not is_dataclass(cls):
         cls = dataclass(cls, frozen=True, config=_PydanticConfig)
 
     if callable(prefix):
         prefixer = prefix
+    elif prefix:
+        if prefix.endswith("_"):
+            prefix = prefix[:-1]
+        prefixer = lambda x: f"{prefix}_{x}".upper()
     else:
-        prefixer = (lambda x: f"{prefix}_{x}".upper()) if prefix else str.upper
+        prefixer = str.upper
 
     kwargs = {}
     for field in dataclasses.fields(cls):
-        print("field =", field)
+        if is_dataclass(field.type):
+            kwargs[field.name] = new(
+                field.type,
+                source=source,
+                prefix=lambda x: prefixer(f"{field.name}_{x}"),
+                decoder=decoder,
+            )
+            continue
         key = prefixer(field.name)
-        raw = source.get(key, _MISSING)
-        if raw is _MISSING:
+        try:
+            raw = source[key]
+        except KeyError:
             if field.default is dataclasses.MISSING:
-                raise MissingValueError(key)
+                raise MissingValueError(key) from None
             kwargs[field.name] = field.default
         else:
             kwargs[field.name] = decoder(field.type, raw)
@@ -66,6 +79,3 @@ def new(
 
 class _PydanticConfig:
     arbitrary_types_allowed = True
-
-
-_MISSING = object()
