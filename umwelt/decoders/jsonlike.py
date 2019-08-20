@@ -26,7 +26,7 @@ def jsonlike_decoder(t: Type[T], s: str) -> T:
     """
     t = getattr(t, "__origin__", t)
     try:
-        if t in (list, dict, set, frozenset, tuple):
+        if t in (list, dict, set, frozenset, tuple) or dataclasses.is_dataclass(t):
             return json.loads(s)
         if t is bool:
             return _as_bool(s)
