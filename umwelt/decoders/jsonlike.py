@@ -1,3 +1,4 @@
+import dataclasses
 import decimal
 import json
 from typing import Type, TypeVar
@@ -34,6 +35,7 @@ def jsonlike_decoder(t: Type[T], s: str) -> T:
         return t(s)
     except (
         ValueError,
+        AttributeError,
         json.JSONDecodeError,
         decimal.InvalidOperation,
         ZeroDivisionError,

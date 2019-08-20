@@ -1,3 +1,4 @@
+import dataclasses
 from dataclasses import dataclass
 
 import pytest
@@ -28,7 +29,7 @@ def test_prefixes(prefix, key):
 
 
 def test_nesting_without_prefix():
-    @dataclass
+    @umwelt.subconfig
     class A:
         x: str
 
@@ -42,7 +43,7 @@ def test_nesting_without_prefix():
 
 
 def test_nesting_with_prefix():
-    @dataclass
+    @umwelt.subconfig
     class A:
         x: str
 
@@ -53,3 +54,20 @@ def test_nesting_with_prefix():
 
     source = {"P_Y": "foo", "P_Z_X": "bar"}
     assert umwelt.new(B, source=source, prefix="P") == B(y="foo", z=A(x="bar"))
+
+
+def test_nesting_without_dataclass():
+    @umwelt.subconfig
+    class A:
+        x: str
+
+    class B:
+        y: str
+        z: A
+
+    source = {"P_Y": "foo", "P_Z_X": "bar"}
+    config = umwelt.new(B, source=source, prefix="P")
+    assert dataclasses.is_dataclass(config)
+    assert config.y == "foo"
+    assert isinstance(config.z, A)
+    assert config.z.x == "bar"
