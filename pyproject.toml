@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "umwelt"
-version = "0.1.0"
-description = ""
+version = "2019.08.1"
+description = "Configure your program via environment variables, validated by pydantic."
 authors = ["Thibaut Le Page <thilp@thilp.net>"]
 license = "MIT"
+repository = "https://github.com/thilp/umwelt"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.6"
