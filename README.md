@@ -6,31 +6,65 @@
 Describe a configuration schema with [dataclasses][] or [pydantic][] and
 load values from the environment, in a static-typing-friendly way.
 
+## Examples
+
+### Flat
+
 ```python
->>> os.environ["APP_DB_PORT"] = "32"
+>>> os.environ["APP_HOSTS"] = '["b.org","sky.net"]'
+>>> os.environ["APP_TOKEN"] = "very secret"
 ```
 
 ```python
+from typing import Sequence
+from pydantic import SecretStr
 import umwelt
-from typing import Tuple
-from pydantic import UrlStr
-
-@umwelt.subconfig  # only needed on nested configs
-class DbConfig:
-    port: int
 
 class MyConfig:
-    db: DbConfig  # nested
-    hosts: Tuple[UrlStr, ...] = ("http://b.org", "http://sky.net")  # default value
+    hosts: Sequence[str]
+    token: SecretStr
+    replicas: int = 2
 
 config = umwelt.new(MyConfig, prefix="app")
 ```
 
 ```python
->>> is_dataclass(config)
+>>> dataclasses.is_dataclass(config)
 True
 >>> config.hosts
-("http://b.org", "http://sky.net")
+["b.org", "sky.net"]
+>>> config.token
+SecretStr('**********')
+>>> config.replicas
+2
+```
+
+### Nested
+
+```python
+>>> os.environ["APP_DB_PORT"] = "32"
+```
+
+```python
+from __future__ import annotations  # for forward-references
+from pydantic import UrlStr
+import umwelt
+
+class MyConfig:
+    db: DbConfig
+    host: UrlStr = "http://b.org"
+
+@umwelt.subconfig
+class DbConfig:
+    port: int
+    debug: bool = False
+
+config = umwelt.new(MyConfig, prefix="app")
+```
+
+```python
+>>> config.host
+"http://b.org"
 >>> config.db.port
 32
 ```
