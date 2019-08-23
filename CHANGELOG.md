@@ -7,6 +7,8 @@ and this project adheres to [Calendar Versioning](http://calver.org).
 
 ## [Unreleased][]
 
+## [2019.8.2][] - 2019-08-23
+
 ### Fixed
 
 - Annotations provided as strings (explicitly or under the influence of
@@ -31,7 +33,8 @@ and this project adheres to [Calendar Versioning](http://calver.org).
 - The default decoder `jsonlike` uses a superset of the JSON syntax to read
   most Python built-in types from strings.
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2019.8.1...HEAD
+[Unreleased]: https://github.com/thilp/umwelt/compare/v2019.8.2...HEAD
+[2019.8.2]: https://github.com/thilp/umwelt/compare/v2019.8.1...v2019.8.2
 [2019.8.1]: https://github.com/thilp/umwelt/releases/tag/v2019.8.1
 
 [pydantic]: https://pypi.org/project/pydantic/

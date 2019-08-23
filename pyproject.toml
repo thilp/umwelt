@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "umwelt"
-version = "2019.08.1"
+version = "2019.08.2"
 description = "Configure your program via environment variables, validated by pydantic."
 authors = ["Thibaut Le Page <thilp@thilp.net>"]
 license = "MIT"
