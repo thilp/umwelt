@@ -3,6 +3,8 @@ import dataclasses
 import json
 from typing import Type, TypeVar
 
+import pydantic
+
 from umwelt.errors import ConversionError
 
 T = TypeVar("T")
@@ -32,7 +34,7 @@ def jsonlike_decoder(t: Type[T], s: str) -> T:
     """
     t = getattr(t, "__origin__", t)
     try:
-        if issubclass(t, str):
+        if issubclass(t, str) or t in (pydantic.SecretStr, pydantic.SecretBytes):
             return s
         if t is bool:
             return _as_bool(s)
