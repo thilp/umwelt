@@ -14,6 +14,10 @@ and this project adheres to [Calendar Versioning](http://calver.org).
   Python types.
   However, this only works when these types are defined at the module level
   (i.e. not in methods or classes).
+- Abstract classes from `collections.abc` (and corresponding `typing` types)
+  are correctly instantiated.
+- [pydantic's `SecretStr` and `SecretBytes`](https://pydantic-docs.helpmanual.io/#secret-types)
+  are correctly instantiated.
 
 ## [2019.8.1][] - 2019-08-21
 
