@@ -1,11 +1,11 @@
-import ast
 import dataclasses
 import os
+import sys
+import typing
 from dataclasses import is_dataclass
 from typing import TypeVar, Type, Mapping, Union, Callable, Any
 
 import pydantic.dataclasses
-import typing
 
 from umwelt.decoders.jsonlike import jsonlike_decoder
 from umwelt.errors import MissingKeyError
@@ -38,8 +38,20 @@ def new(
     prefixer = _build_prefixer(prefix)
 
     kwargs = {}
+    resolved_annotations = None
     for field in dataclasses.fields(cls):
-        kwargs[field.name] = _load_field_value(field, source, prefixer, decoder)
+        if isinstance(field.type, str):  # deal with string annotations
+            if resolved_annotations is None:
+                resolved_annotations = typing.get_type_hints(
+                    cls, sys.modules[cls.__module__].__dict__
+                )
+            resolved_field_type = resolved_annotations[field.name]
+        else:
+            resolved_field_type = field.type
+
+        kwargs[field.name] = _load_field_value(
+            resolved_field_type, field, source, prefixer, decoder
+        )
 
     return cls(**kwargs)
 
@@ -57,14 +69,15 @@ def subconfig(cls: Type[T]) -> Type[T]:
 
 
 def _load_field_value(
+    resolved_field_type,
     field: dataclasses.Field,
     source: Mapping[str, str],
     prefixer: Prefixer,
     decoder: Decoder,
 ) -> Any:
-    if hasattr(field.type, "__umwelt__"):  # conf nesting
+    if hasattr(resolved_field_type, "__umwelt__"):  # conf nesting
         return new(
-            field.type,
+            resolved_field_type,
             source=source,
             prefix=lambda x: prefixer(f"{field.name}_{x}"),
             decoder=decoder,
@@ -77,7 +90,7 @@ def _load_field_value(
             raise MissingKeyError(name=key) from None
         return field.default
     else:
-        return decoder(field.type, raw)
+        return decoder(resolved_field_type, raw)
 
 
 def _build_prefixer(prefix):
