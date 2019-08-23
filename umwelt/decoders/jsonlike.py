@@ -1,11 +1,17 @@
+import collections.abc
 import dataclasses
-import decimal
 import json
 from typing import Type, TypeVar
 
 from umwelt.errors import ConversionError
 
 T = TypeVar("T")
+
+TUPLE_LIKE_ABCS = (
+    collections.abc.Sized,
+    collections.abc.Iterable,
+    collections.abc.Container,
+)
 
 
 def jsonlike_decoder(t: Type[T], s: str) -> T:
@@ -26,21 +32,21 @@ def jsonlike_decoder(t: Type[T], s: str) -> T:
     """
     t = getattr(t, "__origin__", t)
     try:
-        if t in (list, dict, set, frozenset, tuple) or dataclasses.is_dataclass(t):
-            return json.loads(s)
+        if issubclass(t, str):
+            return s
         if t is bool:
             return _as_bool(s)
         if t is bytes:
             return str.encode(s)
+        if (
+            t in (list, dict, set, frozenset, tuple)
+            or issubclass(t, TUPLE_LIKE_ABCS)
+            or dataclasses.is_dataclass(t)
+        ):
+            return json.loads(s)
         return t(s)
-    except (
-        ValueError,
-        AttributeError,
-        json.JSONDecodeError,
-        decimal.InvalidOperation,
-        ZeroDivisionError,
-    ):
-        raise ConversionError(value=s, target=t) from None
+    except Exception as err:
+        raise ConversionError(value=s, target=t) from err
 
 
 def _as_bool(s: str) -> bool:
